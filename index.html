@@ -114,6 +114,37 @@
   }
   .dot.off{background:var(--text-dim);box-shadow:none;}
 
+  #diagPanel{
+    width:100%;
+    max-width:560px;
+  }
+  .diag-box{
+    margin-top:14px;
+    background:rgba(239,111,111,0.08);
+    border:1px solid rgba(239,111,111,0.35);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:13px;
+    line-height:1.7;
+  }
+  .diag-title{
+    font-weight:700;
+    color:var(--rejected);
+    margin-bottom:6px;
+  }
+  .diag-list{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    background:rgba(0,0,0,0.25);
+    border-radius:6px;
+    padding:8px 10px;
+    margin:6px 0;
+    max-height:160px;
+    overflow-y:auto;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
   #resultArea{
     width:100%;
     max-width:560px;
@@ -264,6 +295,8 @@
     <span id="lastUpdated"></span>
   </div>
 
+  <div id="diagPanel"></div>
+
   <div id="resultArea">
     <div class="state-msg">ผลการค้นหาจะแสดงที่นี่</div>
   </div>
@@ -289,7 +322,7 @@
    ============================================================ */
 const CONFIG = {
   SHEET_ID: "122oZrSj-_isO6nLjmoZfEKQkx-MxLVhN-LyxHz4jlZ0",
-  SHEET_NAME: "Sheet 1",
+  SHEET_NAME: "Form Responses 1",
   COLUMNS: {
     teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
     teamCode: "รหัสทีม",
@@ -351,8 +384,32 @@ async function fetchSheet(){
     });
 
     allRows = rows;
-    liveDot.classList.remove('off');
-    liveText.textContent = `เชื่อมต่อแล้ว · ${rows.length} ทีม`;
+
+    // ตรวจสอบว่าชื่อคอลัมน์ใน CONFIG ตรงกับหัวคอลัมน์จริงในชีตหรือไม่
+    const cols = CONFIG.COLUMNS;
+    const requiredCols = [
+      cols.teamName, cols.teamCode, cols.status,
+      ...CONFIG.MEMBERS.flatMap(m => [m.name, m.year].filter(Boolean))
+    ];
+    const missingCols = requiredCols.filter(c => !headers.includes(c));
+    const diagPanel = document.getElementById('diagPanel');
+
+    if(missingCols.length > 0){
+      liveDot.classList.remove('off');
+      liveText.textContent = `เชื่อมต่อชีตได้ (${rows.length} แถว) แต่ชื่อคอลัมน์ใน CONFIG ไม่ตรง ${missingCols.length} รายการ`;
+      diagPanel.innerHTML = `
+        <div class="diag-box">
+          <div class="diag-title">⚠️ ชื่อคอลัมน์ใน CONFIG ไม่ตรงกับในชีตจริง</div>
+          ระบบเชื่อมต่อชีตสำเร็จและอ่านหัวตารางได้ แต่ชื่อคอลัมน์ต่อไปนี้ที่ตั้งไว้ใน <code>CONFIG</code> หาไม่เจอในชีต:
+          <div class="diag-list">${missingCols.map(escapeHtml).join('\n')}</div>
+          นี่คือหัวคอลัมน์ทั้งหมดที่ระบบอ่านได้จริงจากชีต (คัดลอกไปวางแทนใน CONFIG ให้ตรงเป๊ะ):
+          <div class="diag-list">${headers.map(escapeHtml).join('\n')}</div>
+        </div>`;
+    }else{
+      diagPanel.innerHTML = "";
+      liveDot.classList.remove('off');
+      liveText.textContent = `เชื่อมต่อแล้ว · ${rows.length} ทีม`;
+    }
     lastUpdated.textContent = "อัปเดตล่าสุด " + new Date().toLocaleTimeString('th-TH');
 
     if(lastQuery) runSearch(lastQuery, true);

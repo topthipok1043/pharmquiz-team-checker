@@ -1,134 +1,380 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตรวจสอบรายชื่อทีม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1420;
+    --panel:#161d2e;
+    --panel-2:#1d2740;
+    --line:#2a3552;
+    --text:#eef1f8;
+    --text-dim:#9aa5c0;
+    --accent:#5ec9b8;
+    --accent-2:#f2b134;
+    --ok:#4fd18b;
+    --pending:#f2b134;
+    --rejected:#ef6f6f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(94,201,184,0.10), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(242,177,52,0.08), transparent 40%),
+      var(--ink);
+    color:var(--text);
+    font-family:'Sarabun', sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:48px 20px 80px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-size:clamp(24px,4vw,34px);
+    font-weight:700;
+    margin:0 0 6px;
+    text-align:center;
+  }
+  .sub{
+    color:var(--text-dim);
+    font-size:14.5px;
+    margin-bottom:34px;
+    text-align:center;
+    max-width:520px;
+  }
+  .search-card{
+    width:100%;
+    max-width:560px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px;
+    display:flex;
+    gap:8px;
+    box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .search-card input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'Sarabun', sans-serif;
+    font-size:16px;
+    padding:12px 14px;
+  }
+  .search-card input::placeholder{color:var(--text-dim);}
+  .search-card button{
+    background:var(--accent);
+    color:#0b1a17;
+    border:none;
+    border-radius:9px;
+    padding:0 22px;
+    font-family:'Sarabun', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .search-card button:hover{opacity:.9;}
+  .search-card button:active{transform:scale(0.97);}
 
-    <title>PharmQuiz 2026 | Team Checker</title>
+  .meta-row{
+    width:100%;
+    max-width:560px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    font-size:12.5px;
+    color:var(--text-dim);
+    font-family:'JetBrains Mono', monospace;
+  }
+  .dot{
+    display:inline-block;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ok);
+    margin-right:6px;
+    box-shadow:0 0 0 3px rgba(79,209,139,0.18);
+  }
+  .dot.off{background:var(--text-dim);box-shadow:none;}
 
-    <link rel="stylesheet" href="style.css">
+  #resultArea{
+    width:100%;
+    max-width:560px;
+    margin-top:28px;
+  }
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  .state-msg{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:14px;
+    padding:30px 10px;
+  }
 
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  .badge-card{
+    background:linear-gradient(155deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .badge-card::before{
+    content:"";
+    position:absolute;
+    top:-40%;right:-20%;
+    width:220px;height:220px;
+    background:radial-gradient(circle, rgba(94,201,184,0.14), transparent 70%);
+    pointer-events:none;
+  }
+  .badge-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:16px;
+  }
+  .team-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:4px;
+  }
+  .team-name{
+    font-size:20px;
+    font-weight:700;
+  }
+  .team-code{
+    font-family:'JetBrains Mono', monospace;
+    font-size:15px;
+    font-weight:700;
+    background:rgba(94,201,184,0.12);
+    color:var(--accent);
+    border:1px solid rgba(94,201,184,0.35);
+    padding:6px 12px;
+    border-radius:8px;
+    white-space:nowrap;
+  }
 
-    <!-- Icons -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+  .member{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:11px 0;
+    border-top:1px solid var(--line);
+    gap:10px;
+  }
+  .member:first-of-type{border-top:1px solid var(--line);}
+  .member-name{
+    font-size:15px;
+  }
+  .member-name.self{color:var(--accent);font-weight:600;}
+  .status-pill{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:100px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .status-approved{background:rgba(79,209,139,0.14);color:var(--ok);border:1px solid rgba(79,209,139,0.4);}
+  .status-pending{background:rgba(242,177,52,0.14);color:var(--pending);border:1px solid rgba(242,177,52,0.4);}
+  .status-rejected{background:rgba(239,111,111,0.14);color:var(--rejected);border:1px solid rgba(239,111,111,0.4);}
+  .status-unknown{background:rgba(154,165,192,0.14);color:var(--text-dim);border:1px solid var(--line);}
 
+  .footer-note{
+    margin-top:40px;
+    font-size:12px;
+    color:var(--text-dim);
+    text-align:center;
+    max-width:480px;
+    line-height:1.6;
+  }
+  code{
+    font-family:'JetBrains Mono', monospace;
+    background:rgba(255,255,255,0.06);
+    padding:1px 5px;
+    border-radius:4px;
+  }
+</style>
 </head>
-
 <body>
 
-<div class="background"></div>
+  <div class="eyebrow">ระบบตรวจสอบทีม</div>
+  <h1>ค้นหารายชื่อทีมของคุณ</h1>
+  <div class="sub">พิมพ์ชื่อ-นามสกุล เพื่อดูรหัสทีม รายชื่อสมาชิก และสถานะการสมัคร</div>
 
-<header>
+  <div class="search-card">
+    <input id="searchInput" type="text" placeholder="เช่น สมชาย ใจดี" autocomplete="off">
+    <button id="searchBtn">ค้นหา</button>
+  </div>
 
-    <div class="logo-area">
+  <div class="meta-row">
+    <span><span class="dot" id="liveDot"></span><span id="liveText">กำลังเชื่อมต่อชีต...</span></span>
+    <span id="lastUpdated"></span>
+  </div>
 
-        <img src="assets/logo.png" class="logo">
+  <div id="resultArea">
+    <div class="state-msg">ผลการค้นหาจะแสดงที่นี่</div>
+  </div>
 
-        <h1>PharmQuiz 2026</h1>
+  <div class="footer-note">
+    ข้อมูลดึงจาก Google Sheet แบบอัตโนมัติทุก 30 วินาที · แก้ไขค่าตั้งต้นได้ที่ตัวแปร <code>CONFIG</code> ด้านบนของไฟล์ index.html
+  </div>
 
-        <p>TEAM CHECKER</p>
+<script>
+/* ============================================================
+   CONFIG — แก้ตรงนี้ให้ตรงกับ Google Sheet ของคุณ
+   ============================================================
+   1) เปิด Google Sheet ของคุณ -> Share -> เปลี่ยนเป็น
+      "Anyone with the link" = Viewer
+   2) คัดลอก Sheet ID จาก URL:
+      https://docs.google.com/spreadsheets/d/[SHEET_ID]/edit
+   3) ใส่ชื่อชีต (แท็บ) ที่มีข้อมูล เช่น "Sheet1"
+   4) หัวคอลัมน์ในชีตต้องตรงกับชื่อด้านล่าง (แก้ให้ตรงถ้าไม่เหมือน)
+      แต่ละแถว = สมาชิก 1 คน (คนในทีมเดียวกันใช้ "รหัสทีม" ซ้ำกัน)
+   ============================================================ */
+const CONFIG = {
+  SHEET_ID: "1AbCdEfGhIjKlMnOpQrStUvWxYz_PUT_YOUR_ID_HERE",
+  SHEET_NAME: "Sheet1",
+  COLUMNS: {
+    fullName: "ชื่อ-สกุล",
+    teamCode: "รหัสทีม",
+    teamName: "ชื่อทีม",
+    status: "สถานะการสมัคร"
+  },
+  REFRESH_MS: 30000
+};
+/* ============================================================ */
 
-    </div>
+let allRows = [];
+let lastQuery = "";
 
-</header>
+const liveDot = document.getElementById('liveDot');
+const liveText = document.getElementById('liveText');
+const lastUpdated = document.getElementById('lastUpdated');
+const resultArea = document.getElementById('resultArea');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
 
-<main>
+function gvizUrl(){
+  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`;
+}
 
-<div class="glass-card">
+async function fetchSheet(){
+  try{
+    const res = await fetch(gvizUrl(), {cache:"no-store"});
+    const text = await res.text();
+    const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+    const data = JSON.parse(jsonStr);
 
-<h2>
+    const headers = data.table.cols.map(c => (c.label || "").trim());
+    const rows = data.table.rows.map(r => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = r.c[i] && r.c[i].v !== null ? String(r.c[i].v).trim() : "";
+      });
+      return obj;
+    });
 
-<i class="fa-solid fa-magnifying-glass"></i>
+    allRows = rows;
+    liveDot.classList.remove('off');
+    liveText.textContent = `เชื่อมต่อแล้ว · ${rows.length} รายชื่อ`;
+    lastUpdated.textContent = "อัปเดตล่าสุด " + new Date().toLocaleTimeString('th-TH');
 
-ค้นหารายชื่อทีม
+    if(lastQuery) runSearch(lastQuery, true);
+  }catch(err){
+    liveDot.classList.add('off');
+    liveText.textContent = "เชื่อมต่อชีตไม่สำเร็จ — ตรวจสอบ SHEET_ID และสิทธิ์การแชร์";
+    console.error(err);
+  }
+}
 
-</h2>
+function statusClass(statusRaw){
+  const s = (statusRaw || "").toLowerCase();
+  if(/(approve|อนุมัติ|ผ่าน|confirm|ยืนยัน)/.test(s)) return {cls:"status-approved", label: statusRaw || "อนุมัติแล้ว"};
+  if(/(pending|รอ|กำลังตรวจ|review)/.test(s)) return {cls:"status-pending", label: statusRaw || "รอตรวจสอบ"};
+  if(/(reject|ปฏิเสธ|ไม่ผ่าน|ยกเลิก)/.test(s)) return {cls:"status-rejected", label: statusRaw || "ไม่ผ่าน"};
+  return {cls:"status-unknown", label: statusRaw || "ไม่ระบุ"};
+}
 
-<p class="subtitle">
+function runSearch(query, silent){
+  lastQuery = query;
+  const q = query.trim().toLowerCase();
+  if(!q){
+    resultArea.innerHTML = `<div class="state-msg">พิมพ์ชื่อ-นามสกุลเพื่อค้นหา</div>`;
+    return;
+  }
 
-ค้นหาจาก
+  const cols = CONFIG.COLUMNS;
+  const matches = allRows.filter(r => (r[cols.fullName] || "").toLowerCase().includes(q));
 
-ชื่อ • นามสกุล • ชื่อเต็ม • รหัสทีม
+  if(matches.length === 0){
+    resultArea.innerHTML = `<div class="state-msg">ไม่พบชื่อ "${escapeHtml(query)}" ในระบบ<br>ลองตรวจสอบการสะกด หรือค้นหาด้วยชื่อ/นามสกุลเพียงส่วนเดียว</div>`;
+    return;
+  }
 
-</p>
+  // group matches by team code, and pull in full team roster for each
+  const teamCodesFound = [...new Set(matches.map(r => r[cols.teamCode]))];
 
-<div class="search-box">
+  resultArea.innerHTML = teamCodesFound.map(code => {
+    const teamRows = allRows.filter(r => r[cols.teamCode] === code);
+    const teamName = teamRows[0] ? teamRows[0][cols.teamName] : "";
 
-<input
+    const membersHtml = teamRows.map(r => {
+      const isSelf = r[cols.fullName].toLowerCase().includes(q);
+      const st = statusClass(r[cols.status]);
+      return `
+        <div class="member">
+          <span class="member-name${isSelf ? ' self' : ''}">${escapeHtml(r[cols.fullName])}</span>
+          <span class="status-pill ${st.cls}">${escapeHtml(st.label)}</span>
+        </div>`;
+    }).join("");
 
-type="text"
+    return `
+      <div class="badge-card">
+        <div class="badge-top">
+          <div>
+            <div class="team-label">ทีม</div>
+            <div class="team-name">${escapeHtml(teamName || "ไม่ระบุชื่อทีม")}</div>
+          </div>
+          <div class="team-code">${escapeHtml(code || "—")}</div>
+        </div>
+        ${membersHtml}
+      </div>`;
+  }).join("");
+}
 
-id="searchInput"
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
 
-placeholder="เช่น สมชาย ใจดี หรือ PQ-001"
+searchBtn.addEventListener('click', () => runSearch(searchInput.value));
+searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') runSearch(searchInput.value); });
 
-onkeypress="handleEnter(event)"
-
->
-
-<button onclick="searchTeam()">
-
-<i class="fa-solid fa-search"></i>
-
-ค้นหา
-
-</button>
-
-</div>
-
-<div class="dark-mode">
-
-<button onclick="toggleDarkMode()">
-
-🌙 Dark Mode
-
-</button>
-
-</div>
-
-</div>
-
-<div id="loading">
-
-<div class="loader"></div>
-
-<p>กำลังค้นหา...</p>
-
-</div>
-
-<div id="result"></div>
-
-</main>
-
-<footer>
-
-<div>
-
-Faculty of Pharmaceutical Sciences
-
-Khon Kaen University
-
-</div>
-
-<div>
-
-© PharmQuiz 2026
-
-</div>
-
-</footer>
-
-<script src="data.js"></script>
-
-<script src="script.js"></script>
-
+fetchSheet();
+setInterval(fetchSheet, CONFIG.REFRESH_MS);
+</script>
 </body>
-
 </html>

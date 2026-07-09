@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PharmQuiz 2026 | Team Checker</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<header>
+
+    <div class="logo-area">
+
+        <img src="assets/logo.png" class="logo">
+
+        <h1>PharmQuiz 2026</h1>
+
+        <p>TEAM CHECKER</p>
+
+    </div>
+
+</header>
+
+<main>
+
+<div class="glass-card">
+
+<h2>
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+ค้นหารายชื่อทีม
+
+</h2>
+
+<p class="subtitle">
+
+ค้นหาจาก
+
+ชื่อ • นามสกุล • ชื่อเต็ม • รหัสทีม
+
+</p>
+
+<div class="search-box">
+
+<input
+
+type="text"
+
+id="searchInput"
+
+placeholder="เช่น สมชาย ใจดี หรือ PQ-001"
+
+onkeypress="handleEnter(event)"
+
+>
+
+<button onclick="searchTeam()">
+
+<i class="fa-solid fa-search"></i>
+
+ค้นหา
+
+</button>
+
+</div>
+
+<div class="dark-mode">
+
+<button onclick="toggleDarkMode()">
+
+🌙 Dark Mode
+
+</button>
+
+</div>
+
+</div>
+
+<div id="loading">
+
+<div class="loader"></div>
+
+<p>กำลังค้นหา...</p>
+
+</div>
+
+<div id="result"></div>
+
+</main>
+
+<footer>
+
+<div>
+
+Faculty of Pharmaceutical Sciences
+
+Khon Kaen University
+
+</div>
+
+<div>
+
+© PharmQuiz 2026
+
+</div>
+
+</footer>
+
+<script src="data.js"></script>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

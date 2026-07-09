@@ -1,0 +1,4 @@
+:root { --ink: ...; --accent: ...; }
+.search-card 
+.badge-card
+.status-approved / .status-pending / .status-rejected

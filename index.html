@@ -173,20 +173,51 @@
     border-radius:8px;
     white-space:nowrap;
   }
+  .badge-top-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+  }
 
+  .members-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:14px 0 2px;
+  }
   .member{
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    padding:11px 0;
+    padding:9px 0;
     border-top:1px solid var(--line);
     gap:10px;
   }
-  .member:first-of-type{border-top:1px solid var(--line);}
+  .member-index{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-dim);
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    width:22px;height:22px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
   .member-name{
     font-size:15px;
   }
   .member-name.self{color:var(--accent);font-weight:600;}
+  .member-detail{
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:1px;
+  }
   .status-pill{
     font-family:'JetBrains Mono', monospace;
     font-size:11.5px;
@@ -221,10 +252,10 @@
 
   <div class="eyebrow">ระบบตรวจสอบทีม</div>
   <h1>ค้นหารายชื่อทีมของคุณ</h1>
-  <div class="sub">พิมพ์ชื่อ-นามสกุล เพื่อดูรหัสทีม รายชื่อสมาชิก และสถานะการสมัคร</div>
+  <div class="sub">พิมพ์ชื่อ-นามสกุล หรือชื่อทีม เพื่อดูรหัสทีม รายชื่อสมาชิก และสถานะการสมัคร</div>
 
   <div class="search-card">
-    <input id="searchInput" type="text" placeholder="เช่น สมชาย ใจดี" autocomplete="off">
+    <input id="searchInput" type="text" placeholder="เช่น สมชาย ใจดี หรือ ชื่อทีม" autocomplete="off">
     <button id="searchBtn">ค้นหา</button>
   </div>
 
@@ -243,26 +274,35 @@
 
 <script>
 /* ============================================================
-   CONFIG — แก้ตรงนี้ให้ตรงกับ Google Sheet ของคุณ
+   CONFIG — ตั้งค่าตามหัวคอลัมน์จริงของฟอร์ม PharmQuiz KKU 2026
    ============================================================
-   1) เปิด Google Sheet ของคุณ -> Share -> เปลี่ยนเป็น
-      "Anyone with the link" = Viewer
+   1) เปิด Google Sheet -> Share -> เปลี่ยนเป็น "Anyone with the link" = Viewer
    2) คัดลอก Sheet ID จาก URL:
       https://docs.google.com/spreadsheets/d/[SHEET_ID]/edit
-   3) ใส่ชื่อชีต (แท็บ) ที่มีข้อมูล เช่น "Sheet1"
-   4) หัวคอลัมน์ในชีตต้องตรงกับชื่อด้านล่าง (แก้ให้ตรงถ้าไม่เหมือน)
-      แต่ละแถว = สมาชิก 1 คน (คนในทีมเดียวกันใช้ "รหัสทีม" ซ้ำกัน)
+   3) SHEET_NAME: ชีตที่เชื่อมกับฟอร์มมักชื่อ "Form Responses 1"
+      หรือถ้าเป็นภาษาไทยจะชื่อ "การตอบแบบฟอร์ม 1" — เปิดชีตแล้วดูชื่อแท็บ
+      ด้านล่างให้ตรงเป๊ะ (รวมช่องว่าง/ตัวเลขด้วย)
+   4) ชื่อคอลัมน์ด้านล่างต้อง "ตรงเป๊ะ" กับหัวตารางในชีตของคุณ
+      หมายเหตุ: ชีตนี้มีคอลัมน์ "ชั้นปี" ซ้ำกัน 3 ครั้ง (คนละสมาชิก)
+      ระบบจะเติมหมายเลขกำกับให้อัตโนมัติเป็น "ชั้นปี (1)", "ชั้นปี (2)", "ชั้นปี (3)"
+      ตามลำดับซ้าย->ขวาที่เจอในชีต ให้ใช้ชื่อที่มีหมายเลขกำกับใน MEMBERS ด้านล่าง
    ============================================================ */
-  const CONFIG = {
-  SHEET_ID: "122oZrSj-_isO6nLjmoZfEKQkx-MxLVhN-LyxHz4jlZ0",   // .../d/[ตรงนี้]/edit
-  SHEET_NAME: "Sheet 1",                  // ชื่อแท็บที่มีข้อมูล
+const CONFIG = {
+  SHEET_ID: "122oZrSj-_isO6nLjmoZfEKQkx-MxLVhN-LyxHz4jlZ0",
+  SHEET_NAME: "Sheet 1",
   COLUMNS: {
-    teamName: "ชื่อทีม",
+    teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
     teamCode: "รหัสทีม",
-    status: "สถานะการสมัคร",
-    memberPrefix: "สมาชิก"   // ต้องตรงกับตัวขึ้นต้นชื่อคอลัมน์สมาชิกในชีต
+    status: "สถานะการสมัคร"
   },
-  REFRESH_MS: 30000   // ดึงข้อมูลใหม่ทุกกี่มิลลิวินาที (30 วิ)
+  // สมาชิกแต่ละคน: name = คอลัมน์ชื่อ-สกุล, year = คอลัมน์ชั้นปีของคนนั้น (ใส่ null ถ้าไม่มี)
+  // เพิ่ม/ลบรายการในนี้ได้ตามจำนวนสมาชิกสูงสุดที่ฟอร์มรับจริง
+  MEMBERS: [
+    { name: "ชื่อ-สกุล สมาชิกทีมคนที่ 1 (หัวหน้าทีม)", year: "ชั้นปี (1)", role: "หัวหน้าทีม" },
+    { name: "ชื่อ-สกุล สมาชิกทีมคนที่ 2", year: "ชั้นปี (2)", role: null },
+    { name: "ชื่อ-สกุล สมาชิกทีมคนที่ 3", year: "ชั้นปี (3)", role: null }
+  ],
+  REFRESH_MS: 30000
 };
 /* ============================================================ */
 
@@ -287,7 +327,21 @@ async function fetchSheet(){
     const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
     const data = JSON.parse(jsonStr);
 
-    const headers = data.table.cols.map(c => (c.label || "").trim());
+    const rawHeaders = data.table.cols.map(c => (c.label || "").trim());
+
+    // ชีตนี้มีหัวคอลัมน์ซ้ำกัน (เช่น "ชั้นปี" x3) -> เติมหมายเลขกำกับ
+    // ตามลำดับที่เจอ ให้กลายเป็น "ชั้นปี (1)", "ชั้นปี (2)", ... เพื่อให้อ้างอิงแยกกันได้
+    const headerCounts = {};
+    rawHeaders.forEach(h => { headerCounts[h] = (headerCounts[h] || 0) + 1; });
+    const seenSoFar = {};
+    const headers = rawHeaders.map(h => {
+      if(headerCounts[h] > 1){
+        seenSoFar[h] = (seenSoFar[h] || 0) + 1;
+        return `${h} (${seenSoFar[h]})`;
+      }
+      return h;
+    });
+
     const rows = data.table.rows.map(r => {
       const obj = {};
       headers.forEach((h, i) => {
@@ -298,7 +352,7 @@ async function fetchSheet(){
 
     allRows = rows;
     liveDot.classList.remove('off');
-    liveText.textContent = `เชื่อมต่อแล้ว · ${rows.length} รายชื่อ`;
+    liveText.textContent = `เชื่อมต่อแล้ว · ${rows.length} ทีม`;
     lastUpdated.textContent = "อัปเดตล่าสุด " + new Date().toLocaleTimeString('th-TH');
 
     if(lastQuery) runSearch(lastQuery, true);
@@ -321,44 +375,65 @@ function runSearch(query, silent){
   lastQuery = query;
   const q = query.trim().toLowerCase();
   if(!q){
-    resultArea.innerHTML = `<div class="state-msg">พิมพ์ชื่อ-นามสกุลเพื่อค้นหา</div>`;
+    resultArea.innerHTML = `<div class="state-msg">พิมพ์ชื่อ-นามสกุล หรือชื่อทีมเพื่อค้นหา</div>`;
     return;
   }
 
   const cols = CONFIG.COLUMNS;
-  const matches = allRows.filter(r => (r[cols.fullName] || "").toLowerCase().includes(q));
+
+  // แต่ละแถว = 1 ทีม -> ค้นหาจาก "ชื่อทีม" หรือ "ชื่อสมาชิกคนใดก็ได้ในแถวนั้น"
+  const matches = allRows.filter(r => {
+    const teamNameHit = (r[cols.teamName] || "").toLowerCase().includes(q);
+    const memberHit = CONFIG.MEMBERS.some(m => (r[m.name] || "").toLowerCase().includes(q));
+    return teamNameHit || memberHit;
+  });
 
   if(matches.length === 0){
-    resultArea.innerHTML = `<div class="state-msg">ไม่พบชื่อ "${escapeHtml(query)}" ในระบบ<br>ลองตรวจสอบการสะกด หรือค้นหาด้วยชื่อ/นามสกุลเพียงส่วนเดียว</div>`;
+    resultArea.innerHTML = `<div class="state-msg">ไม่พบ "${escapeHtml(query)}" ในระบบ<br>ลองตรวจสอบการสะกด หรือค้นหาด้วยชื่อ/นามสกุล/ชื่อทีมเพียงส่วนเดียว</div>`;
     return;
   }
 
-  // group matches by team code, and pull in full team roster for each
-  const teamCodesFound = [...new Set(matches.map(r => r[cols.teamCode]))];
+  resultArea.innerHTML = matches.map(row => {
+    const teamName = row[cols.teamName] || "ไม่ระบุชื่อทีม";
+    const teamCode = row[cols.teamCode] || "—";
+    const st = statusClass(row[cols.status]);
 
-  resultArea.innerHTML = teamCodesFound.map(code => {
-    const teamRows = allRows.filter(r => r[cols.teamCode] === code);
-    const teamName = teamRows[0] ? teamRows[0][cols.teamName] : "";
+    const activeMembers = CONFIG.MEMBERS
+      .map(m => ({
+        name: row[m.name],
+        year: m.year ? row[m.year] : "",
+        role: m.role
+      }))
+      .filter(m => m.name && m.name.trim() !== "");
 
-    const membersHtml = teamRows.map(r => {
-      const isSelf = r[cols.fullName].toLowerCase().includes(q);
-      const st = statusClass(r[cols.status]);
-      return `
-        <div class="member">
-          <span class="member-name${isSelf ? ' self' : ''}">${escapeHtml(r[cols.fullName])}</span>
-          <span class="status-pill ${st.cls}">${escapeHtml(st.label)}</span>
-        </div>`;
-    }).join("");
+    const membersHtml = activeMembers.length
+      ? activeMembers.map((m, i) => {
+          const isSelf = m.name.toLowerCase().includes(q);
+          const detail = [m.role, m.year ? `ชั้นปี ${m.year}` : null].filter(Boolean).join(" · ");
+          return `
+            <div class="member">
+              <span class="member-index">${i + 1}</span>
+              <div>
+                <div class="member-name${isSelf ? ' self' : ''}">${escapeHtml(m.name)}</div>
+                ${detail ? `<div class="member-detail">${escapeHtml(detail)}</div>` : ""}
+              </div>
+            </div>`;
+        }).join("")
+      : `<div class="member"><span class="member-name" style="color:var(--text-dim)">ไม่มีข้อมูลสมาชิก</span></div>`;
 
     return `
       <div class="badge-card">
         <div class="badge-top">
           <div>
             <div class="team-label">ทีม</div>
-            <div class="team-name">${escapeHtml(teamName || "ไม่ระบุชื่อทีม")}</div>
+            <div class="team-name">${escapeHtml(teamName)}</div>
           </div>
-          <div class="team-code">${escapeHtml(code || "—")}</div>
+          <div class="badge-top-right">
+            <div class="team-code">${escapeHtml(teamCode)}</div>
+            <span class="status-pill ${st.cls}">${escapeHtml(st.label)}</span>
+          </div>
         </div>
+        <div class="members-label">สมาชิกทีม (${activeMembers.length} คน)</div>
         ${membersHtml}
       </div>`;
   }).join("");

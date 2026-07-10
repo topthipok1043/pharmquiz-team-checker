@@ -1,1 +1,535 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบตรวจสอบรายชื่อ PharmQuizKKU2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Taviraj:wght@500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#170d10;
+    --panel:#241419;
+    --panel-2:#2e1820;
+    --line:#4a2530;
+    --text:#f7ece9;
+    --text-dim:#b89aa0;
+    --accent:#c65a72;
+    --accent-strong:#8b1e3f;
+    --sage:#7fb69e;
+    --gold:#d4a24c;
+    --ok:#7fb69e;
+    --pending:#d4a24c;
+    --rejected:#e2707a;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(198,90,114,0.14), transparent 45%),
+      radial-gradient(circle at 88% 12%, rgba(127,182,158,0.08), transparent 40%),
+      var(--ink);
+    color:var(--text);
+    font-family:'Sarabun', sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:48px 20px 80px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--sage);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Taviraj', serif;
+    font-size:clamp(24px,4vw,34px);
+    font-weight:600;
+    margin:0 0 6px;
+    text-align:center;
+  }
+  .sub{
+    color:var(--text-dim);
+    font-size:14.5px;
+    margin-bottom:34px;
+    text-align:center;
+    max-width:520px;
+  }
+  .search-card{
+    width:100%;
+    max-width:560px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px;
+    display:flex;
+    gap:8px;
+    box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .search-card input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'Sarabun', sans-serif;
+    font-size:16px;
+    padding:12px 14px;
+  }
+  .search-card input::placeholder{color:var(--text-dim);}
+  .search-card button{
+    background:var(--accent);
+    color:#2b0a12;
+    border:none;
+    border-radius:9px;
+    padding:0 22px;
+    font-family:'Sarabun', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .search-card button:hover{opacity:.9;}
+  .search-card button:active{transform:scale(0.97);}
 
+  .meta-row{
+    width:100%;
+    max-width:560px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    font-size:12.5px;
+    color:var(--text-dim);
+    font-family:'JetBrains Mono', monospace;
+  }
+  .dot{
+    display:inline-block;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ok);
+    margin-right:6px;
+    box-shadow:0 0 0 3px rgba(127,182,158,0.18);
+  }
+  .dot.off{background:var(--text-dim);box-shadow:none;}
+
+  #diagPanel{
+    width:100%;
+    max-width:560px;
+  }
+  .diag-box{
+    margin-top:14px;
+    background:rgba(226,112,122,0.08);
+    border:1px solid rgba(226,112,122,0.35);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:13px;
+    line-height:1.7;
+  }
+  .diag-title{
+    font-weight:700;
+    color:var(--rejected);
+    margin-bottom:6px;
+  }
+  .diag-list{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    background:rgba(0,0,0,0.25);
+    border-radius:6px;
+    padding:8px 10px;
+    margin:6px 0;
+    max-height:160px;
+    overflow-y:auto;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  #resultArea{
+    width:100%;
+    max-width:560px;
+    margin-top:28px;
+  }
+
+  .state-msg{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:14px;
+    padding:30px 10px;
+  }
+
+  .badge-card{
+    background:linear-gradient(155deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .badge-card::before{
+    content:"";
+    position:absolute;
+    top:-40%;right:-20%;
+    width:220px;height:220px;
+    background:radial-gradient(circle, rgba(198,90,114,0.16), transparent 70%);
+    pointer-events:none;
+  }
+  .badge-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:16px;
+  }
+  .team-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:4px;
+  }
+  .team-name{
+    font-family:'Taviraj', serif;
+    font-size:21px;
+    font-weight:600;
+  }
+  .ticket-divider{
+    position:relative;
+    height:0;
+    border-top:2px dashed var(--line);
+    margin:16px 0 4px;
+  }
+  .ticket-divider::before,
+  .ticket-divider::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    width:20px;height:20px;
+    background:var(--ink);
+    border-radius:50%;
+    transform:translateY(-50%);
+  }
+  .ticket-divider::before{ left:-32px; }
+  .ticket-divider::after{ right:-32px; }
+  .team-code{
+    font-family:'JetBrains Mono', monospace;
+    font-size:15px;
+    font-weight:700;
+    background:rgba(198,90,114,0.14);
+    color:var(--accent);
+    border:1px solid rgba(198,90,114,0.4);
+    padding:6px 12px;
+    border-radius:8px;
+    white-space:nowrap;
+  }
+  .badge-top-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+  }
+
+  .members-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:14px 0 2px;
+  }
+  .member{
+    display:flex;
+    align-items:center;
+    padding:9px 0;
+    border-top:1px solid var(--line);
+    gap:10px;
+  }
+  .member-index{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-dim);
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--line);
+    width:22px;height:22px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .member-name{
+    font-size:15px;
+  }
+  .member-name.self{color:var(--accent);font-weight:600;}
+  .member-detail{
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:1px;
+  }
+  .status-pill{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:100px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .status-approved{background:rgba(127,182,158,0.14);color:var(--ok);border:1px solid rgba(127,182,158,0.4);}
+  .status-pending{background:rgba(212,162,76,0.14);color:var(--pending);border:1px solid rgba(212,162,76,0.4);}
+  .status-rejected{background:rgba(226,112,122,0.14);color:var(--rejected);border:1px solid rgba(226,112,122,0.4);}
+  .status-unknown{background:rgba(154,165,192,0.14);color:var(--text-dim);border:1px solid var(--line);}
+
+  .footer-note{
+    margin-top:40px;
+    font-size:12px;
+    color:var(--text-dim);
+    text-align:center;
+    max-width:480px;
+    line-height:1.6;
+  }
+  code{
+    font-family:'JetBrains Mono', monospace;
+    background:rgba(255,255,255,0.06);
+    padding:1px 5px;
+    border-radius:4px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">PharmQuiz KKU 2026</div>
+  <h1>ระบบตรวจสอบรายชื่อทีม</h1>
+  <div class="sub">พิมพ์ชื่อ-นามสกุล หรือชื่อทีม เพื่อดูรหัสทีม รายชื่อสมาชิก และสถานะการสมัคร</div>
+
+  <div class="search-card">
+    <input id="searchInput" type="text" placeholder="เช่น สมชาย ใจดี หรือ ชื่อทีม" autocomplete="off">
+    <button id="searchBtn">ค้นหา</button>
+  </div>
+
+  <div class="meta-row">
+    <span><span class="dot" id="liveDot"></span><span id="liveText">กำลังเชื่อมต่อชีต...</span></span>
+    <span id="lastUpdated"></span>
+  </div>
+
+  <div id="diagPanel"></div>
+
+  <div id="resultArea">
+    <div class="state-msg">ผลการค้นหาจะแสดงที่นี่</div>
+  </div>
+
+  <div class="footer-note">
+    ข้อมูลดึงจาก Google Sheet แบบอัตโนมัติทุก 30 วินาที · แก้ไขค่าตั้งต้นได้ที่ตัวแปร <code>CONFIG</code> ด้านบนของไฟล์ index.html
+  </div>
+
+<script>
+/* ============================================================
+   CONFIG — ตั้งค่าตามหัวคอลัมน์จริงของฟอร์ม PharmQuiz KKU 2026
+   ============================================================
+   1) เปิด Google Sheet -> Share -> เปลี่ยนเป็น "Anyone with the link" = Viewer
+   2) คัดลอก Sheet ID จาก URL:
+      https://docs.google.com/spreadsheets/d/[SHEET_ID]/edit
+   3) SHEET_NAME: ชีตที่เชื่อมกับฟอร์มมักชื่อ "Form Responses 1"
+      หรือถ้าเป็นภาษาไทยจะชื่อ "การตอบแบบฟอร์ม 1" — เปิดชีตแล้วดูชื่อแท็บ
+      ด้านล่างให้ตรงเป๊ะ (รวมช่องว่าง/ตัวเลขด้วย)
+   4) ชื่อคอลัมน์ด้านล่างต้อง "ตรงเป๊ะ" กับหัวตารางในชีตของคุณ
+      หมายเหตุ: ชีตนี้มีคอลัมน์ "ชั้นปี" ซ้ำกัน 3 ครั้ง (คนละสมาชิก)
+      ระบบจะเติมหมายเลขกำกับให้อัตโนมัติเป็น "ชั้นปี (1)", "ชั้นปี (2)", "ชั้นปี (3)"
+      ตามลำดับซ้าย->ขวาที่เจอในชีต ให้ใช้ชื่อที่มีหมายเลขกำกับใน MEMBERS ด้านล่าง
+   ============================================================ */
+const CONFIG = {
+  SHEET_ID: "122oZrSj-_isO6nLjmoZfEKQkx-MxLVhN-LyxHz4jlZ0",
+  SHEET_NAME: "Form Responses 1",
+  COLUMNS: {
+    teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
+    teamCode: "รหัสทีม",
+    status: "สถานะการสมัคร"
+  },
+  // สมาชิกแต่ละคน: name = คอลัมน์ชื่อ-สกุล, year = คอลัมน์ชั้นปีของคนนั้น (ใส่ null ถ้าไม่มี)
+  // เพิ่ม/ลบรายการในนี้ได้ตามจำนวนสมาชิกสูงสุดที่ฟอร์มรับจริง
+  MEMBERS: [
+    { name: "ชื่อ-สกุล สมาชิกทีมคนที่ 1 (หัวหน้าทีม)", year: "ชั้นปี (1)", role: "หัวหน้าทีม" },
+    { name: "ชื่อ-สกุล สมาชิกทีมคนที่ 2", year: "ชั้นปี (2)", role: null },
+    { name: "ชื่อ-สกุล สมาชิกทีมคนที่ 3", year: "ชั้นปี (3)", role: null }
+  ],
+  REFRESH_MS: 30000
+};
+/* ============================================================ */
+
+let allRows = [];
+let lastQuery = "";
+
+const liveDot = document.getElementById('liveDot');
+const liveText = document.getElementById('liveText');
+const lastUpdated = document.getElementById('lastUpdated');
+const resultArea = document.getElementById('resultArea');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+
+function gvizUrl(){
+  return `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`;
+}
+
+async function fetchSheet(){
+  try{
+    const res = await fetch(gvizUrl(), {cache:"no-store"});
+    const text = await res.text();
+    const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+    const data = JSON.parse(jsonStr);
+
+    const rawHeaders = data.table.cols.map(c => (c.label || "").trim());
+
+    // ชีตนี้มีหัวคอลัมน์ซ้ำกัน (เช่น "ชั้นปี" x3) -> เติมหมายเลขกำกับ
+    // ตามลำดับที่เจอ ให้กลายเป็น "ชั้นปี (1)", "ชั้นปี (2)", ... เพื่อให้อ้างอิงแยกกันได้
+    const headerCounts = {};
+    rawHeaders.forEach(h => { headerCounts[h] = (headerCounts[h] || 0) + 1; });
+    const seenSoFar = {};
+    const headers = rawHeaders.map(h => {
+      if(headerCounts[h] > 1){
+        seenSoFar[h] = (seenSoFar[h] || 0) + 1;
+        return `${h} (${seenSoFar[h]})`;
+      }
+      return h;
+    });
+
+    const rows = data.table.rows.map(r => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = r.c[i] && r.c[i].v !== null ? String(r.c[i].v).trim() : "";
+      });
+      return obj;
+    });
+
+    allRows = rows;
+
+    // ตรวจสอบว่าชื่อคอลัมน์ใน CONFIG ตรงกับหัวคอลัมน์จริงในชีตหรือไม่
+    const cols = CONFIG.COLUMNS;
+    const requiredCols = [
+      cols.teamName, cols.teamCode, cols.status,
+      ...CONFIG.MEMBERS.flatMap(m => [m.name, m.year].filter(Boolean))
+    ];
+    const missingCols = requiredCols.filter(c => !headers.includes(c));
+    const diagPanel = document.getElementById('diagPanel');
+
+    if(missingCols.length > 0){
+      liveDot.classList.remove('off');
+      liveText.textContent = `เชื่อมต่อชีตได้ (${rows.length} แถว) แต่ชื่อคอลัมน์ใน CONFIG ไม่ตรง ${missingCols.length} รายการ`;
+      diagPanel.innerHTML = `
+        <div class="diag-box">
+          <div class="diag-title">⚠️ ชื่อคอลัมน์ใน CONFIG ไม่ตรงกับในชีตจริง</div>
+          ระบบเชื่อมต่อชีตสำเร็จและอ่านหัวตารางได้ แต่ชื่อคอลัมน์ต่อไปนี้ที่ตั้งไว้ใน <code>CONFIG</code> หาไม่เจอในชีต:
+          <div class="diag-list">${missingCols.map(escapeHtml).join('\n')}</div>
+          นี่คือหัวคอลัมน์ทั้งหมดที่ระบบอ่านได้จริงจากชีต (คัดลอกไปวางแทนใน CONFIG ให้ตรงเป๊ะ):
+          <div class="diag-list">${headers.map(escapeHtml).join('\n')}</div>
+        </div>`;
+    }else{
+      diagPanel.innerHTML = "";
+      liveDot.classList.remove('off');
+      liveText.textContent = `เชื่อมต่อแล้ว · ${rows.length} ทีม`;
+    }
+    lastUpdated.textContent = "อัปเดตล่าสุด " + new Date().toLocaleTimeString('th-TH');
+
+    if(lastQuery) runSearch(lastQuery, true);
+  }catch(err){
+    liveDot.classList.add('off');
+    liveText.textContent = "เชื่อมต่อชีตไม่สำเร็จ — ตรวจสอบ SHEET_ID และสิทธิ์การแชร์";
+    console.error(err);
+  }
+}
+
+function statusClass(statusRaw){
+  const s = (statusRaw || "").toLowerCase();
+  if(/(approve|อนุมัติ|ผ่าน|confirm|ยืนยัน)/.test(s)) return {cls:"status-approved", label: statusRaw || "อนุมัติแล้ว"};
+  if(/(pending|รอ|กำลังตรวจ|review)/.test(s)) return {cls:"status-pending", label: statusRaw || "รอตรวจสอบ"};
+  if(/(reject|ปฏิเสธ|ไม่ผ่าน|ยกเลิก)/.test(s)) return {cls:"status-rejected", label: statusRaw || "ไม่ผ่าน"};
+  return {cls:"status-unknown", label: statusRaw || "ไม่ระบุ"};
+}
+
+function runSearch(query, silent){
+  lastQuery = query;
+  const q = query.trim().toLowerCase();
+  if(!q){
+    resultArea.innerHTML = `<div class="state-msg">พิมพ์ชื่อ-นามสกุล หรือชื่อทีมเพื่อค้นหา</div>`;
+    return;
+  }
+
+  const cols = CONFIG.COLUMNS;
+
+  // แต่ละแถว = 1 ทีม -> ค้นหาจาก "ชื่อทีม" หรือ "ชื่อสมาชิกคนใดก็ได้ในแถวนั้น"
+  const matches = allRows.filter(r => {
+    const teamNameHit = (r[cols.teamName] || "").toLowerCase().includes(q);
+    const memberHit = CONFIG.MEMBERS.some(m => (r[m.name] || "").toLowerCase().includes(q));
+    return teamNameHit || memberHit;
+  });
+
+  if(matches.length === 0){
+    resultArea.innerHTML = `<div class="state-msg">ไม่พบ "${escapeHtml(query)}" ในระบบ<br>ลองตรวจสอบการสะกด หรือค้นหาด้วยชื่อ/นามสกุล/ชื่อทีมเพียงส่วนเดียว</div>`;
+    return;
+  }
+
+  resultArea.innerHTML = matches.map(row => {
+    const teamName = row[cols.teamName] || "ไม่ระบุชื่อทีม";
+    const teamCode = row[cols.teamCode] || "—";
+    const st = statusClass(row[cols.status]);
+
+    const activeMembers = CONFIG.MEMBERS
+      .map(m => ({
+        name: row[m.name],
+        year: m.year ? row[m.year] : "",
+        role: m.role
+      }))
+      .filter(m => m.name && m.name.trim() !== "");
+
+    const membersHtml = activeMembers.length
+      ? activeMembers.map((m, i) => {
+          const isSelf = m.name.toLowerCase().includes(q);
+          const detail = [m.role, m.year ? `ชั้นปี ${m.year}` : null].filter(Boolean).join(" · ");
+          return `
+            <div class="member">
+              <span class="member-index">${i + 1}</span>
+              <div>
+                <div class="member-name${isSelf ? ' self' : ''}">${escapeHtml(m.name)}</div>
+                ${detail ? `<div class="member-detail">${escapeHtml(detail)}</div>` : ""}
+              </div>
+            </div>`;
+        }).join("")
+      : `<div class="member"><span class="member-name" style="color:var(--text-dim)">ไม่มีข้อมูลสมาชิก</span></div>`;
+
+    return `
+      <div class="badge-card">
+        <div class="badge-top">
+          <div>
+            <div class="team-label">ทีม</div>
+            <div class="team-name">${escapeHtml(teamName)}</div>
+          </div>
+          <div class="badge-top-right">
+            <div class="team-code">${escapeHtml(teamCode)}</div>
+            <span class="status-pill ${st.cls}">${escapeHtml(st.label)}</span>
+          </div>
+        </div>
+        <div class="ticket-divider"></div>
+        <div class="members-label">สมาชิกทีม (${activeMembers.length} คน)</div>
+        ${membersHtml}
+      </div>`;
+  }).join("");
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
+
+searchBtn.addEventListener('click', () => runSearch(searchInput.value));
+searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') runSearch(searchInput.value); });
+
+fetchSheet();
+setInterval(fetchSheet, CONFIG.REFRESH_MS);
+</script>
+</body>
+</html>

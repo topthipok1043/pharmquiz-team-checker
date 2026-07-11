@@ -278,6 +278,12 @@
     font-size:21px;
     font-weight:600;
   }
+  .team-email{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:4px;
+  }
   .ticket-divider{
     position:relative;
     height:0;
@@ -469,7 +475,7 @@
       <circle cx="57" cy="9" r="1.4" fill="#e2c14c"/>
       <path class="snake-head-dot" d="M54 17 L54 22 M54 22 L51 25 M54 22 L57 25" stroke="#c0303f" stroke-width="1.2" stroke-linecap="round"/>
     </svg>
-    PharmQuiz KKU 2026
+    PharmQuiz KKU 2026 · Slytherin Edition
   </div>
   <h1>ระบบตรวจสอบรายชื่อทีม</h1>
   <div class="underline"></div>
@@ -480,7 +486,7 @@
     <button id="searchBtn">ค้นหา</button>
   </div>
 
- <div class="meta-row" style="display:none">
+  <div class="meta-row" style="display:none">
     <span><span class="dot" id="liveDot"></span><span id="liveText">กำลังเชื่อมต่อชีต...</span></span>
     <span id="lastUpdated"></span>
   </div>
@@ -492,7 +498,7 @@
   </div>
 
   <div class="footer-note">
-   ขอให้น้อง ๆ โชคดีในการสอบรอบคัดเลือก 1 สิงหาคม 2569 🍀
+    ขอให้น้อง ๆ โชคดีในการสอบรอบคัดเลือก 1 สิงหาคม 2569 🍀
   </div>
 
 <script>
@@ -514,11 +520,11 @@ const CONFIG = {
   SHEET_ID: "122oZrSj-_isO6nLjmoZfEKQkx-MxLVhN-LyxHz4jlZ0",
   SHEET_NAME: "Form Responses 1",
   COLUMNS: {
-  teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
-  teamCode: "รหัสทีม",
-  status: "สถานะการสมัคร",
-  email: "Email Address"
-},
+    teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
+    teamCode: "รหัสทีม",
+    status: "สถานะการสมัคร",
+    email: "Email Address"
+  },
   // สมาชิกแต่ละคน: name = คอลัมน์ชื่อ-สกุล, year = คอลัมน์ชั้นปีของคนนั้น (ใส่ null ถ้าไม่มี)
   // เพิ่ม/ลบรายการในนี้ได้ตามจำนวนสมาชิกสูงสุดที่ฟอร์มรับจริง
   MEMBERS: [
@@ -579,7 +585,7 @@ async function fetchSheet(){
     // ตรวจสอบว่าชื่อคอลัมน์ใน CONFIG ตรงกับหัวคอลัมน์จริงในชีตหรือไม่
     const cols = CONFIG.COLUMNS;
     const requiredCols = [
-      cols.teamName, cols.teamCode, cols.status,
+      cols.teamName, cols.teamCode, cols.status, cols.email,
       ...CONFIG.MEMBERS.flatMap(m => [m.name, m.year].filter(Boolean))
     ];
     const missingCols = requiredCols.filter(c => !headers.includes(c));
@@ -643,9 +649,9 @@ function runSearch(query, silent){
 
   resultArea.innerHTML = matches.map((row, idx) => {
     const teamName = row[cols.teamName] || "ไม่ระบุชื่อทีม";
-const teamCode = row[cols.teamCode] || "—";
-const email = row[cols.email] || "";
-const st = statusClass(row[cols.status]);
+    const teamCode = row[cols.teamCode] || "—";
+    const email = row[cols.email] || "";
+    const st = statusClass(row[cols.status]);
 
     const activeMembers = CONFIG.MEMBERS
       .map(m => ({
@@ -676,6 +682,7 @@ const st = statusClass(row[cols.status]);
           <div>
             <div class="team-label">ทีม</div>
             <div class="team-name">${escapeHtml(teamName)}</div>
+            ${email ? `<div class="team-email">✉️ ${escapeHtml(email)}</div>` : ""}
           </div>
           <div class="badge-top-right">
             <div class="team-code">${escapeHtml(teamCode)}</div>

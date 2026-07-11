@@ -514,10 +514,11 @@ const CONFIG = {
   SHEET_ID: "122oZrSj-_isO6nLjmoZfEKQkx-MxLVhN-LyxHz4jlZ0",
   SHEET_NAME: "Form Responses 1",
   COLUMNS: {
-    teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
-    teamCode: "รหัสทีม",
-    status: "สถานะการสมัคร"
-  },
+  teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
+  teamCode: "รหัสทีม",
+  status: "สถานะการสมัคร",
+  email: "Email Address"
+},
   // สมาชิกแต่ละคน: name = คอลัมน์ชื่อ-สกุล, year = คอลัมน์ชั้นปีของคนนั้น (ใส่ null ถ้าไม่มี)
   // เพิ่ม/ลบรายการในนี้ได้ตามจำนวนสมาชิกสูงสุดที่ฟอร์มรับจริง
   MEMBERS: [
@@ -642,8 +643,9 @@ function runSearch(query, silent){
 
   resultArea.innerHTML = matches.map((row, idx) => {
     const teamName = row[cols.teamName] || "ไม่ระบุชื่อทีม";
-    const teamCode = row[cols.teamCode] || "—";
-    const st = statusClass(row[cols.status]);
+const teamCode = row[cols.teamCode] || "—";
+const email = row[cols.email] || "";
+const st = statusClass(row[cols.status]);
 
     const activeMembers = CONFIG.MEMBERS
       .map(m => ({

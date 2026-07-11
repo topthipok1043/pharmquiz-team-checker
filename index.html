@@ -37,6 +37,56 @@
     align-items:center;
     padding:48px 20px 80px;
   }
+  .site-logo{
+    max-width:120px;
+    height:auto;
+    margin-bottom:18px;
+    filter:drop-shadow(0 6px 18px rgba(63,174,116,0.35));
+  }
+
+  .hygieia-watermark{
+    position:fixed;
+    pointer-events:none;
+    color:#000;
+    z-index:-1;
+  }
+  .hygieia-watermark.tl{
+    top:-30px; left:-30px;
+    width:190px; height:auto;
+    opacity:0.09;
+    animation:float-drift 9s ease-in-out infinite;
+  }
+  .hygieia-watermark.br{
+    bottom:-25px; right:-25px;
+    width:150px; height:auto;
+    opacity:0.08;
+    animation:float-drift 11s ease-in-out infinite reverse;
+  }
+  .hygieia-inline{
+    width:34px;
+    height:auto;
+    color:#0a1a13;
+    opacity:0.85;
+    vertical-align:middle;
+    animation:float-drift 5s ease-in-out infinite;
+  }
+  .snake-head-dot{ animation:tongue-flick 2.4s ease-in-out infinite; }
+  .bubble{ animation:bubble-rise 2.6s ease-in-out infinite; transform-origin:center; }
+  .bubble:nth-child(3){ animation-delay:0.6s; }
+
+  @keyframes float-drift{
+    0%,100%{ transform:translateY(0) rotate(-3deg); }
+    50%{ transform:translateY(-14px) rotate(3deg); }
+  }
+  @keyframes tongue-flick{
+    0%,80%,100%{ opacity:1; }
+    88%{ opacity:0.3; }
+  }
+  @keyframes bubble-rise{
+    0%{ transform:translateY(0); opacity:0.8; }
+    100%{ transform:translateY(-6px); opacity:0; }
+  }
+
   .eyebrow{
     font-family:'JetBrains Mono', monospace;
     font-size:12px;
@@ -360,7 +410,67 @@
 </head>
 <body>
 
-  <div class="eyebrow"><span class="snake">🐍</span> PharmQuiz KKU 2026 · Slytherin Edition</div>
+  <!-- shared gradients ใช้ร่วมกันทุกจุดที่วาดงู/ถ้วยยา -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="snakeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#050505"/>
+        <stop offset="42%" stop-color="#1a1a1a"/>
+        <stop offset="52%" stop-color="#3d3d3d"/>
+        <stop offset="65%" stop-color="#161616"/>
+        <stop offset="100%" stop-color="#020202"/>
+      </linearGradient>
+      <linearGradient id="cupGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#4a4a4a"/>
+        <stop offset="35%" stop-color="#161616"/>
+        <stop offset="100%" stop-color="#000000"/>
+      </linearGradient>
+      <radialGradient id="liquidGrad" cx="50%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#8fe0b0"/>
+        <stop offset="55%" stop-color="#3fae74"/>
+        <stop offset="100%" stop-color="#1a472a"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <!-- ลายน้ำตกแต่ง: งู + ถ้วยยา (สัญลักษณ์เภสัชกรรมสากล "Bowl of Hygieia") ลอยเบา ๆ -->
+  <svg class="hygieia-watermark tl" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 90 L70 90 L60 130 L40 130 Z" fill="url(#cupGrad)" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+    <ellipse cx="50" cy="90" rx="20" ry="6" fill="url(#liquidGrad)" stroke="#000" stroke-width="1.5"/>
+    <path d="M20 130 C 8 100, 14 68, 40 58 C 66 48, 70 28, 54 14" fill="none" stroke="url(#snakeGrad)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M20 130 C 8 100, 14 68, 40 58 C 66 48, 70 28, 54 14" fill="none" stroke="#4d4d4d" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+    <path d="M46 8 L54 5 L62 8 L57 17 L51 17 Z" fill="url(#snakeGrad)" stroke="#000" stroke-width="1"/>
+    <circle cx="51" cy="9" r="1.4" fill="#e2c14c"/>
+    <circle cx="57" cy="9" r="1.4" fill="#e2c14c"/>
+    <path d="M54 17 L54 22 M54 22 L51 25 M54 22 L57 25" stroke="#c0303f" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  <svg class="hygieia-watermark br" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 90 L70 90 L60 130 L40 130 Z" fill="url(#cupGrad)" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+    <ellipse cx="50" cy="90" rx="20" ry="6" fill="url(#liquidGrad)" stroke="#000" stroke-width="1.5"/>
+    <path d="M80 130 C 92 100, 86 68, 60 58 C 34 48, 30 28, 46 14" fill="none" stroke="url(#snakeGrad)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M80 130 C 92 100, 86 68, 60 58 C 34 48, 30 28, 46 14" fill="none" stroke="#4d4d4d" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+    <path d="M54 8 L46 5 L38 8 L43 17 L49 17 Z" fill="url(#snakeGrad)" stroke="#000" stroke-width="1"/>
+    <circle cx="49" cy="9" r="1.4" fill="#e2c14c"/>
+    <circle cx="43" cy="9" r="1.4" fill="#e2c14c"/>
+    <path d="M46 17 L46 22 M46 22 L43 25 M46 22 L49 25" stroke="#c0303f" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+
+  <img src="logo.png" alt="PharmQuiz KKU 2026 logo" class="site-logo" onerror="this.style.display='none'">
+  <div class="eyebrow">
+    <svg class="hygieia-inline" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 90 L70 90 L60 130 L40 130 Z" fill="url(#cupGrad)" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+      <ellipse cx="50" cy="90" rx="20" ry="6" fill="url(#liquidGrad)" stroke="#000" stroke-width="1.5"/>
+      <circle class="bubble" cx="45" cy="88" r="1.6" fill="#c9f5da" opacity="0.8"/>
+      <circle class="bubble" cx="55" cy="90" r="1.1" fill="#c9f5da" opacity="0.6"/>
+      <path d="M20 130 C 8 100, 14 68, 40 58 C 66 48, 70 28, 54 14" fill="none" stroke="url(#snakeGrad)" stroke-width="7" stroke-linecap="round"/>
+      <path d="M20 130 C 8 100, 14 68, 40 58 C 66 48, 70 28, 54 14" fill="none" stroke="#4d4d4d" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+      <path d="M46 8 L54 5 L62 8 L57 17 L51 17 Z" fill="url(#snakeGrad)" stroke="#000" stroke-width="1"/>
+      <circle cx="51" cy="9" r="1.4" fill="#e2c14c"/>
+      <circle cx="57" cy="9" r="1.4" fill="#e2c14c"/>
+      <path class="snake-head-dot" d="M54 17 L54 22 M54 22 L51 25 M54 22 L57 25" stroke="#c0303f" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    PharmQuiz KKU 2026 · Slytherin Edition
+  </div>
   <h1>ระบบตรวจสอบรายชื่อทีม</h1>
   <div class="underline"></div>
   <div class="sub">พิมพ์ชื่อ-นามสกุล หรือชื่อทีม เพื่อดูรหัสทีม รายชื่อสมาชิก และสถานะการสมัคร</div>

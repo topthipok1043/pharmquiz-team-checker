@@ -8,17 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Taviraj:wght@500;600;700&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#170d10;
-    --panel:#241419;
-    --panel-2:#2e1820;
-    --line:#4a2530;
-    --text:#f7ece9;
-    --text-dim:#b89aa0;
-    --accent:#c65a72;
-    --accent-strong:#8b1e3f;
-    --sage:#7fb69e;
-    --gold:#d4a24c;
-    --ok:#7fb69e;
+    --ink:#0a1a13;
+    --panel:#0f2a1f;
+    --panel-2:#153a2b;
+    --line:#2f5f46;
+    --text:#eef6f1;
+    --text-dim:#9fc2ac;
+    --accent:#3fae74;
+    --accent-strong:#1a472a;
+    --silver:#c7d1cf;
+    --ok:#52c97e;
     --pending:#d4a24c;
     --rejected:#e2707a;
     --radius:14px;
@@ -28,8 +27,8 @@
   body{
     min-height:100vh;
     background:
-      radial-gradient(circle at 12% 0%, rgba(198,90,114,0.14), transparent 45%),
-      radial-gradient(circle at 88% 12%, rgba(127,182,158,0.08), transparent 40%),
+      radial-gradient(circle at 12% 0%, rgba(63,174,116,0.16), transparent 45%),
+      radial-gradient(circle at 88% 12%, rgba(199,209,207,0.06), transparent 40%),
       var(--ink);
     color:var(--text);
     font-family:'Sarabun', sans-serif;
@@ -42,16 +41,32 @@
     font-family:'JetBrains Mono', monospace;
     font-size:12px;
     letter-spacing:0.18em;
-    color:var(--sage);
+    color:var(--silver);
     text-transform:uppercase;
     margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .eyebrow .snake{
+    display:inline-block;
+    animation:slither 3.2s ease-in-out infinite;
   }
   h1{
     font-family:'Taviraj', serif;
     font-size:clamp(24px,4vw,34px);
     font-weight:600;
-    margin:0 0 6px;
+    margin:0 0 10px;
     text-align:center;
+  }
+  .underline{
+    width:120px;
+    height:3px;
+    border-radius:3px;
+    margin-bottom:24px;
+    background:linear-gradient(90deg, transparent, var(--accent), var(--silver), var(--accent), transparent);
+    background-size:200% 100%;
+    animation:shimmer-move 3.5s linear infinite;
   }
   .sub{
     color:var(--text-dim);
@@ -69,7 +84,12 @@
     padding:10px;
     display:flex;
     gap:8px;
-    box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+    box-shadow:0 20px 60px -20px rgba(0,0,0,0.7);
+    transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .search-card:focus-within{
+    border-color:var(--accent);
+    box-shadow:0 20px 60px -20px rgba(0,0,0,0.7), 0 0 0 3px rgba(63,174,116,0.18);
   }
   .search-card input{
     flex:1;
@@ -84,7 +104,7 @@
   .search-card input::placeholder{color:var(--text-dim);}
   .search-card button{
     background:var(--accent);
-    color:#2b0a12;
+    color:#06170f;
     border:none;
     border-radius:9px;
     padding:0 22px;
@@ -92,9 +112,9 @@
     font-weight:700;
     font-size:15px;
     cursor:pointer;
-    transition:transform .15s ease, opacity .15s ease;
+    transition:transform .15s ease, opacity .15s ease, box-shadow .2s ease;
   }
-  .search-card button:hover{opacity:.9;}
+  .search-card button:hover{opacity:.92;box-shadow:0 0 18px rgba(63,174,116,0.55);}
   .search-card button:active{transform:scale(0.97);}
 
   .meta-row{
@@ -113,9 +133,9 @@
     width:7px;height:7px;border-radius:50%;
     background:var(--ok);
     margin-right:6px;
-    box-shadow:0 0 0 3px rgba(127,182,158,0.18);
+    animation:pulse-ring 2s ease-in-out infinite;
   }
-  .dot.off{background:var(--text-dim);box-shadow:none;}
+  .dot.off{background:var(--text-dim);box-shadow:none;animation:none;}
 
   #diagPanel{
     width:100%;
@@ -162,20 +182,31 @@
   }
 
   .badge-card{
-    background:linear-gradient(155deg, var(--panel-2), var(--panel));
+    background:
+      repeating-radial-gradient(circle at 0 0, rgba(199,209,207,0.03) 0, rgba(199,209,207,0.03) 1px, transparent 1px, transparent 14px),
+      linear-gradient(155deg, var(--panel-2), var(--panel));
     border:1px solid var(--line);
     border-radius:var(--radius);
     padding:22px 22px 18px;
     margin-bottom:18px;
     position:relative;
     overflow:hidden;
+    opacity:0;
+    transform:translateY(14px);
+    animation:fadeInUp .5s ease forwards;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .badge-card:hover{
+    transform:translateY(-3px);
+    border-color:var(--accent);
+    box-shadow:0 16px 40px -18px rgba(63,174,116,0.45);
   }
   .badge-card::before{
     content:"";
     position:absolute;
     top:-40%;right:-20%;
     width:220px;height:220px;
-    background:radial-gradient(circle, rgba(198,90,114,0.16), transparent 70%);
+    background:radial-gradient(circle, rgba(63,174,116,0.20), transparent 70%);
     pointer-events:none;
   }
   .badge-top{
@@ -219,9 +250,14 @@
     font-family:'JetBrains Mono', monospace;
     font-size:15px;
     font-weight:700;
-    background:rgba(198,90,114,0.14);
-    color:var(--accent);
-    border:1px solid rgba(198,90,114,0.4);
+    background:linear-gradient(100deg,
+      rgba(63,174,116,0.16) 0%,
+      rgba(199,209,207,0.28) 45%,
+      rgba(63,174,116,0.16) 100%);
+    background-size:220% 100%;
+    animation:shimmer-move 4.5s linear infinite;
+    color:var(--silver);
+    border:1px solid rgba(199,209,207,0.35);
     padding:6px 12px;
     border-radius:8px;
     white-space:nowrap;
@@ -280,10 +316,10 @@
     white-space:nowrap;
     flex-shrink:0;
   }
-  .status-approved{background:rgba(127,182,158,0.14);color:var(--ok);border:1px solid rgba(127,182,158,0.4);}
+  .status-approved{background:rgba(82,201,126,0.14);color:var(--ok);border:1px solid rgba(82,201,126,0.4);}
   .status-pending{background:rgba(212,162,76,0.14);color:var(--pending);border:1px solid rgba(212,162,76,0.4);}
   .status-rejected{background:rgba(226,112,122,0.14);color:var(--rejected);border:1px solid rgba(226,112,122,0.4);}
-  .status-unknown{background:rgba(154,165,192,0.14);color:var(--text-dim);border:1px solid var(--line);}
+  .status-unknown{background:rgba(159,194,172,0.14);color:var(--text-dim);border:1px solid var(--line);}
 
   .footer-note{
     margin-top:40px;
@@ -299,12 +335,34 @@
     padding:1px 5px;
     border-radius:4px;
   }
+
+  @keyframes fadeInUp{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes shimmer-move{
+    0%{ background-position:200% 0; }
+    100%{ background-position:-200% 0; }
+  }
+  @keyframes pulse-ring{
+    0%,100%{ box-shadow:0 0 0 0 rgba(82,201,126,0.4); }
+    50%{ box-shadow:0 0 0 5px rgba(82,201,126,0); }
+  }
+  @keyframes slither{
+    0%,100%{ transform:translateX(0) rotate(0deg); }
+    25%{ transform:translateX(2px) rotate(-8deg); }
+    75%{ transform:translateX(-2px) rotate(8deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
 </style>
 </head>
 <body>
 
-  <div class="eyebrow">PharmQuiz KKU 2026</div>
+  <div class="eyebrow"><span class="snake">🐍</span> PharmQuiz KKU 2026 · Slytherin Edition</div>
   <h1>ระบบตรวจสอบรายชื่อทีม</h1>
+  <div class="underline"></div>
   <div class="sub">พิมพ์ชื่อ-นามสกุล หรือชื่อทีม เพื่อดูรหัสทีม รายชื่อสมาชิก และสถานะการสมัคร</div>
 
   <div class="search-card">
@@ -472,7 +530,7 @@ function runSearch(query, silent){
     return;
   }
 
-  resultArea.innerHTML = matches.map(row => {
+  resultArea.innerHTML = matches.map((row, idx) => {
     const teamName = row[cols.teamName] || "ไม่ระบุชื่อทีม";
     const teamCode = row[cols.teamCode] || "—";
     const st = statusClass(row[cols.status]);
@@ -501,7 +559,7 @@ function runSearch(query, silent){
       : `<div class="member"><span class="member-name" style="color:var(--text-dim)">ไม่มีข้อมูลสมาชิก</span></div>`;
 
     return `
-      <div class="badge-card">
+      <div class="badge-card" style="animation-delay:${idx * 90}ms">
         <div class="badge-top">
           <div>
             <div class="team-label">ทีม</div>

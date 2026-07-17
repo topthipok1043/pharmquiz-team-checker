@@ -284,6 +284,14 @@
     color:var(--text-dim);
     margin-top:4px;
   }
+  .team-school{
+    font-size:13px;
+    color:var(--text-dim);
+    margin-top:6px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
   .ticket-divider{
     position:relative;
     height:0;
@@ -523,7 +531,8 @@ const CONFIG = {
     teamName: "ชื่อทีม (ไม่เกิน 50 ตัวอักษร)",
     teamCode: "รหัสทีม",
     status: "สถานะการสมัคร",
-    email: "Email Address"
+    email: "Email Address",
+    school: "โรงเรียนที่กำลังศึกษาอยู่" 
   },
   // สมาชิกแต่ละคน: name = คอลัมน์ชื่อ-สกุล, year = คอลัมน์ชั้นปีของคนนั้น (ใส่ null ถ้าไม่มี)
   // เพิ่ม/ลบรายการในนี้ได้ตามจำนวนสมาชิกสูงสุดที่ฟอร์มรับจริง
@@ -585,7 +594,7 @@ async function fetchSheet(){
     // ตรวจสอบว่าชื่อคอลัมน์ใน CONFIG ตรงกับหัวคอลัมน์จริงในชีตหรือไม่
     const cols = CONFIG.COLUMNS;
     const requiredCols = [
-      cols.teamName, cols.teamCode, cols.status, cols.email,
+      cols.teamName, cols.teamCode, cols.status, cols.email,cols.school,
       ...CONFIG.MEMBERS.flatMap(m => [m.name, m.year].filter(Boolean))
     ];
     const missingCols = requiredCols.filter(c => !headers.includes(c));
@@ -651,6 +660,7 @@ function runSearch(query, silent){
     const teamName = row[cols.teamName] || "ไม่ระบุชื่อทีม";
     const teamCode = row[cols.teamCode] || "—";
     const email = row[cols.email] || "";
+    const school = row[cols.school] || "";  
     const st = statusClass(row[cols.status]);
 
     const activeMembers = CONFIG.MEMBERS
@@ -682,6 +692,7 @@ function runSearch(query, silent){
           <div>
             <div class="team-label">ทีม</div>
             <div class="team-name">${escapeHtml(teamName)}</div>
+            ${school ? `<div class="team-school">🏫 ${escapeHtml(school)}</div>` : ""} 
             ${email ? `<div class="team-email">✉️ ${escapeHtml(email)}</div>` : ""}
           </div>
           <div class="badge-top-right">
